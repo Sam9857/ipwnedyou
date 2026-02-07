@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - I Pwned You</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>I PWNED YOU</h2>
+                <p>OSINT Platform v1.0</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" class="active"><span>🏠</span> Dashboard</a></li>
+                <li><a href="/domain-scan"><span>🌐</span> Domain Scan</a></li>
+                <li><a href="/ip-scan"><span>📡</span> IP Scan</a></li>
+                <li><a href="/image-intel"><span>🖼️</span> Image Intelligence</a></li>
+                <li><a href="/reports"><span>📊</span> Reports</a></li>
+                <li><a href="/creator"><span>👤</span> Creator</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span>👤</span> {{ username }}
+                </div>
+                <button class="btn-logout" onclick="window.location.href='/logout'">
+                    🚪 LOGOUT
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>⚡ DASHBOARD</h1>
+                <p>Welcome to the OSINT Threat Detection Platform</p>
+            </div>
+
+            <!-- Quick Stats -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🌐 DOMAIN OSINT</div>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: #a0a0a0; margin-bottom: 15px;">Scan domains for DNS, WHOIS, and registration data</p>
+                        <a href="/domain-scan" class="btn btn-primary">START SCAN</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📡 IP INTELLIGENCE</div>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: #a0a0a0; margin-bottom: 15px;">Geolocate IPs and gather network information</p>
+                        <a href="/ip-scan" class="btn btn-primary">START SCAN</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🖼️ IMAGE ANALYSIS</div>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: #a0a0a0; margin-bottom: 15px;">Extract metadata and perform image OSINT</p>
+                        <a href="/image-intel" class="btn btn-primary">START SCAN</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📋 PLATFORM INFORMATION</div>
+                </div>
+                <div class="card-body">
+                    <div class="result-item">
+                        <div class="result-label">Platform Version:</div>
+                        <div class="result-value">1.0 - Production Ready</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Target OS:</div>
+                        <div class="result-value">Windows</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Backend:</div>
+                        <div class="result-value">Python Flask</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Frontend:</div>
+                        <div class="result-value">HTML5, CSS3, JavaScript</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Features:</div>
+                        <div class="result-value">Domain OSINT, IP Intelligence, Image Analysis, Report Generation</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Getting Started -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🚀 GETTING STARTED</div>
+                </div>
+                <div class="card-body">
+                    <ol style="color: #a0a0a0; line-height: 1.8; padding-left: 20px;">
+                        <li>Choose a scan type from the sidebar menu</li>
+                        <li>Enter target information (domain, IP, or upload image)</li>
+                        <li>Review results displayed in real-time</li>
+                        <li>Download generated reports from the Reports section</li>
+                        <li>All scans are saved automatically for your records</li>
+                    </ol>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Cyber Cursor -->
+<div id="cyber-cursor"></div>
+</body>
+</html>

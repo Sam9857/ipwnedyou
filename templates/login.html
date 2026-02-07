@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - I Pwned You OSINT Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-logo">
+                <h1>I PWNED YOU</h1>
+                <p>OSINT Threat Detection Platform</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">USERNAME</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">PASSWORD</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" required autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <span>🔐</span> LOGIN
+                </button>
+
+                <div class="error-message" id="errorMessage"></div>
+            </form>
+
+            <div style="margin-top: 20px; text-align: center; color: #666; font-size: 12px;">
+                <p>Default: admin / admin123</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            const submitBtn = e.target.querySelector('.btn-login');
+            
+            // Disable button during request
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>⏳</span> AUTHENTICATING...';
+            errorMessage.classList.remove('show');
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    submitBtn.innerHTML = '<span>✓</span> SUCCESS';
+                    submitBtn.style.background = '#00ff88';
+                    window.location.href = '/dashboard';
+                } else {
+                    errorMessage.textContent = data.message;
+                    errorMessage.classList.add('show');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>🔐</span> LOGIN';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Connection error. Please try again.';
+                errorMessage.classList.add('show');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>🔐</span> LOGIN';
+            }
+        });
+    </script>
+</body>
+</html>

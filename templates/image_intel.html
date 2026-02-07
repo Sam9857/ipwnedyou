@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Intelligence - I Pwned You</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>I PWNED YOU</h2>
+                <p>OSINT Platform v1.0</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard"><span>🏠</span> Dashboard</a></li>
+                <li><a href="/domain-scan"><span>🌐</span> Domain Scan</a></li>
+                <li><a href="/ip-scan"><span>📡</span> IP Scan</a></li>
+                <li><a href="/image-intel" class="active"><span>🖼️</span> Image Intelligence</a></li>
+                <li><a href="/reports"><span>📊</span> Reports</a></li>
+                <li><a href="/creator"><span>👤</span> Creator</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span>👤</span> {{ username }}
+                </div>
+                <button class="btn-logout" onclick="window.location.href='/logout'">
+                    🚪 LOGOUT
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>🖼️ IMAGE INTELLIGENCE</h1>
+                <p>Professional OSINT Image Analysis - Human Validation Required</p>
+            </div>
+
+            <!-- OSINT Disclaimer -->
+            <div class="alert alert-warning show">
+                <strong>⚠️ OSINT ANALYST GUIDANCE:</strong> This tool provides informational data only. 
+                EXIF can be edited/stripped. OCR accuracy is not guaranteed. 
+                GPS coordinates may be spoofed. Human analyst validation is REQUIRED for all findings.
+            </div>
+
+            <!-- Upload Form -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📤 UPLOAD IMAGE FOR ANALYSIS</div>
+                </div>
+                <div class="card-body">
+                    <form id="imageForm" enctype="multipart/form-data">
+                        <div class="file-upload-area" id="uploadArea">
+                            <div class="upload-icon">🖼️</div>
+                            <div class="upload-text">
+                                <strong>Click to select image</strong> or drag and drop here
+                            </div>
+                            <div class="upload-formats">
+                                Supported: PNG, JPG, JPEG, GIF, BMP (Max 16MB)
+                            </div>
+                            <input type="file" id="imageFile" name="image" accept="image/*" style="display: none;" required>
+                        </div>
+
+                        <div id="selectedFile" style="margin-top: 15px; color: #00ff88; display: none;">
+                            <strong>Selected:</strong> <span id="fileName"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="scanBtn" style="margin-top: 20px;">
+                            <span>🔍</span> ANALYZE IMAGE
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            <div class="alert alert-success" id="successAlert"></div>
+            <div class="alert alert-error" id="errorAlert"></div>
+
+            <!-- Loading Indicator -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">Analyzing image... This may take a moment</div>
+            </div>
+
+            <!-- Results Container -->
+            <div class="results-container" id="resultsContainer">
+                <!-- File Information -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📄 FILE INFORMATION</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="result-section">
+                            <div class="result-item">
+                                <div class="result-label">Filename:</div>
+                                <div class="result-value" id="resFilename">-</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">File Size:</div>
+                                <div class="result-value" id="resFileSize">-</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Dimensions:</div>
+                                <div class="result-value" id="resDimensions">-</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Analysis Time:</div>
+                                <div class="result-value" id="resTimestamp">-</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Status:</div>
+                                <div class="result-value" id="resStatus">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EXIF Metadata -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📸 EXIF METADATA</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info show">
+                            <strong>ℹ️ EXIF DISCLAIMER:</strong> EXIF data can be stripped by social media, 
+                            edited with tools, or completely fabricated. Missing EXIF is NOT suspicious.
+                        </div>
+                        <div id="exifData">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GPS & Location -->
+                <div class="card" id="locationCard" style="display: none;">
+                    <div class="card-header">
+                        <div class="card-title">📍 GPS & LOCATION DATA</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning show">
+                            <strong>⚠️ GPS WARNING:</strong> GPS coordinates can be spoofed or edited. 
+                            Location accuracy varies. Always verify with independent sources.
+                        </div>
+                        <div id="locationData">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OCR Text Extraction -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📝 OCR TEXT EXTRACTION</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info show">
+                            <strong>ℹ️ OCR DISCLAIMER:</strong> Accuracy is NOT guaranteed. 
+                            Results are informational only. Low-quality images produce unreliable results. 
+                            Manual verification required.
+                        </div>
+                        <div id="ocrData">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reverse Image Search -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🔍 REVERSE IMAGE SEARCH</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning show">
+                            <strong>⚠️ MANUAL VERIFICATION REQUIRED:</strong> 
+                            Upload image manually to each search engine. 
+                            Similar images DO NOT confirm original source. 
+                            Platform identification requires additional OSINT.
+                        </div>
+                        <div id="reverseSearchData">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analyst Action Items -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">✅ ANALYST ACTION ITEMS</div>
+                    </div>
+                    <div class="card-body">
+                        <ul id="analystNotes" style="color: #00ff88; line-height: 1.8; padding-left: 20px;">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Download Report -->
+                <div class="card">
+                    <div class="card-body text-center">
+                        <button class="btn btn-success" id="downloadBtn" onclick="downloadReport()">
+                            <span>📥</span> DOWNLOAD FULL REPORT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentReport = null;
+
+        // File upload area click handler
+        document.getElementById('uploadArea').addEventListener('click', () => {
+            document.getElementById('imageFile').click();
+        });
+
+        // File selection handler
+        document.getElementById('imageFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('selectedFile').style.display = 'block';
+            }
+        });
+
+        // Drag and drop handlers
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                document.getElementById('imageFile').files = e.dataTransfer.files;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('selectedFile').style.display = 'block';
+            }
+        });
+
+        // Form submission handler
+        document.getElementById('imageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('imageFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            const scanBtn = document.getElementById('scanBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('resultsContainer');
+            const successAlert = document.getElementById('successAlert');
+            const errorAlert = document.getElementById('errorAlert');
+            
+            // Reset
+            results.classList.remove('show');
+            successAlert.classList.remove('show');
+            errorAlert.classList.remove('show');
+            
+            // Show loading
+            scanBtn.disabled = true;
+            scanBtn.innerHTML = '<span>⏳</span> ANALYZING...';
+            loading.classList.add('show');
+            
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+                
+                const response = await fetch('/api/scan/image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayImageResults(data);
+                    currentReport = data.report_file;
+                    
+                    successAlert.textContent = '✓ Image analysis completed successfully';
+                    successAlert.classList.add('show');
+                    results.classList.add('show');
+                } else {
+                    errorAlert.innerHTML = '✗ ' + (data.message || 'Analysis failed');
+                    if (data.hint) {
+                        errorAlert.innerHTML += '<br><small>' + data.hint + '</small>';
+                    }
+                    errorAlert.classList.add('show');
+                }
+            } catch (error) {
+                errorAlert.textContent = '✗ Network error: ' + error.message;
+                errorAlert.classList.add('show');
+            } finally {
+                loading.classList.remove('show');
+                scanBtn.disabled = false;
+                scanBtn.innerHTML = '<span>🔍</span> ANALYZE IMAGE';
+            }
+        });
+
+        function displayImageResults(data) {
+            // File info
+            document.getElementById('resFilename').textContent = data.filename || 'N/A';
+            document.getElementById('resFileSize').textContent = formatBytes(data.file_size) || 'N/A';
+            document.getElementById('resDimensions').textContent = data.image_dimensions || 'N/A';
+            document.getElementById('resTimestamp').textContent = data.timestamp || 'N/A';
+            document.getElementById('resStatus').innerHTML = `<span class="badge badge-success">${data.status}</span>`;
+            
+            // EXIF Data
+            const exifContainer = document.getElementById('exifData');
+            exifContainer.innerHTML = '';
+            
+            if (data.exif_data) {
+                const exif = data.exif_data;
+                
+                if (exif.available) {
+                    // GPS Coordinates
+                    if (exif.gps_coordinates) {
+                        const gpsSection = document.createElement('div');
+                        gpsSection.className = 'result-section';
+                        gpsSection.innerHTML = `
+                            <h3>📍 GPS COORDINATES FOUND</h3>
+                            <div class="result-item">
+                                <div class="result-label">Latitude:</div>
+                                <div class="result-value">${exif.gps_coordinates.latitude}</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Longitude:</div>
+                                <div class="result-value">${exif.gps_coordinates.longitude}</div>
+                            </div>
+                            <div style="margin-top: 10px; padding: 10px; background: rgba(255, 191, 0, 0.1); border-left: 3px solid #ffbf00; color: #ffbf00;">
+                                ${exif.gps_coordinates.disclaimer}
+                            </div>
+                        `;
+                        exifContainer.appendChild(gpsSection);
+                    }
+                    
+                    // Camera Info
+                    if (exif.camera_info && (exif.camera_info.make !== 'N/A' || exif.camera_info.model !== 'N/A')) {
+                        const camSection = document.createElement('div');
+                        camSection.className = 'result-section';
+                        camSection.innerHTML = `
+                            <h3>📷 CAMERA INFORMATION</h3>
+                            <div class="result-item">
+                                <div class="result-label">Make:</div>
+                                <div class="result-value">${exif.camera_info.make}</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Model:</div>
+                                <div class="result-value">${exif.camera_info.model}</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Lens:</div>
+                                <div class="result-value">${exif.camera_info.lens}</div>
+                            </div>
+                            <div style="margin-top: 10px; padding: 10px; background: rgba(255, 191, 0, 0.1); border-left: 3px solid #ffbf00; color: #ffbf00;">
+                                ${exif.camera_info.disclaimer}
+                            </div>
+                        `;
+                        exifContainer.appendChild(camSection);
+                    }
+                    
+                    // Timestamp
+                    if (exif.timestamp) {
+                        const timeSection = document.createElement('div');
+                        timeSection.className = 'result-section';
+                        timeSection.innerHTML = `
+                            <h3>🕐 TIMESTAMP</h3>
+                            <div class="result-item">
+                                <div class="result-label">Original Date/Time:</div>
+                                <div class="result-value">${exif.timestamp}</div>
+                            </div>
+                            ${exif.timestamp_disclaimer ? `<div style="margin-top: 10px; padding: 10px; background: rgba(255, 191, 0, 0.1); border-left: 3px solid #ffbf00; color: #ffbf00;">${exif.timestamp_disclaimer}</div>` : ''}
+                        `;
+                        exifContainer.appendChild(timeSection);
+                    }
+                    
+                    // Software
+                    if (exif.software) {
+                        const softSection = document.createElement('div');
+                        softSection.className = 'result-section';
+                        softSection.innerHTML = `
+                            <h3>💾 SOFTWARE</h3>
+                            <div class="result-item">
+                                <div class="result-value">${exif.software}</div>
+                            </div>
+                        `;
+                        exifContainer.appendChild(softSection);
+                    }
+                } else {
+                    exifContainer.innerHTML = `<div style="padding: 15px; background: rgba(255, 191, 0, 0.1); border-left: 3px solid #ffbf00; color: #ffbf00;">${exif.disclaimer}</div>`;
+                }
+            }
+            
+            // Location Data (if GPS available)
+            if (data.location_data && data.location_data.city) {
+                const locationCard = document.getElementById('locationCard');
+                locationCard.style.display = 'block';
+                
+                const locationContainer = document.getElementById('locationData');
+                locationContainer.innerHTML = '';
+                
+                const locSection = document.createElement('div');
+                locSection.className = 'result-section';
+                locSection.innerHTML = `
+                    <h3>🗺️ REVERSE GEOCODED LOCATION</h3>
+                    <div class="result-item">
+                        <div class="result-label">City:</div>
+                        <div class="result-value">${data.location_data.city}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">State/Region:</div>
+                        <div class="result-value">${data.location_data.state}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Country:</div>
+                        <div class="result-value">${data.location_data.country}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Full Address:</div>
+                        <div class="result-value">${data.location_data.full_address}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">OpenStreetMap:</div>
+                        <div class="result-value"><a href="${data.location_data.map_link}" target="_blank">View on Map</a></div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Google Maps:</div>
+                        <div class="result-value"><a href="${data.location_data.google_maps_link}" target="_blank">View on Google Maps</a></div>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: rgba(255, 191, 0, 0.1); border-left: 3px solid #ffbf00; color: #ffbf00;">
+                        ${data.location_data.disclaimer}
+                    </div>
+                `;
+                locationContainer.appendChild(locSection);
+            }
+            
+            // OCR Results
+            const ocrContainer = document.getElementById('ocrData');
+            ocrContainer.innerHTML = '';
+            
+            if (data.ocr_results) {
+                const ocr = data.ocr_results;
+                const ocrSection = document.createElement('div');
+                ocrSection.className = 'result-section';
+                
+                if (ocr.text_found) {
+                    ocrSection.innerHTML = `
+                        <h3>📝 EXTRACTED TEXT</h3>
+                        <div style="background: #1a1f2e; padding: 15px; border-radius: 5px; margin-top: 10px; font-family: 'Consolas', monospace; white-space: pre-wrap; color: #00ff88;">${escapeHtml(ocr.extracted_text)}</div>
+                        <div style="margin-top: 10px; padding: 10px; background: rgba(0, 212, 255, 0.1); border-left: 3px solid #00d4ff; color: #00d4ff;">
+                            ${ocr.disclaimer}
+                        </div>
+                    `;
+                } else {
+                    ocrSection.innerHTML = `<div style="padding: 15px; background: rgba(255, 191, 0, 0.1); border-left: 3px solid #ffbf00; color: #ffbf00;">${ocr.disclaimer}</div>`;
+                }
+                
+                ocrContainer.appendChild(ocrSection);
+            }
+            
+            // Reverse Search Links
+            const reverseContainer = document.getElementById('reverseSearchData');
+            reverseContainer.innerHTML = '';
+            
+            if (data.reverse_search) {
+                const rev = data.reverse_search;
+                const revSection = document.createElement('div');
+                revSection.className = 'result-section';
+                
+                let linksHTML = '<h3>🔗 SEARCH ENGINES (MANUAL UPLOAD REQUIRED)</h3>';
+                for (const [engine, link] of Object.entries(rev.search_engines)) {
+                    linksHTML += `
+                        <div class="result-item">
+                            <div class="result-label">${engine}:</div>
+                            <div class="result-value"><a href="${link}" target="_blank">${link}</a></div>
+                        </div>
+                    `;
+                }
+                
+                linksHTML += `
+                    <div style="margin-top: 15px;">
+                        <div class="result-item">
+                            <div class="result-label">File Hash (SHA-256):</div>
+                            <div class="result-value" style="font-size: 11px;">${rev.file_hash_sha256}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; padding: 10px; background: rgba(255, 62, 62, 0.1); border-left: 3px solid #ff3e3e; color: #ff3e3e;">
+                        ${rev.disclaimer.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+                
+                revSection.innerHTML = linksHTML;
+                reverseContainer.appendChild(revSection);
+            }
+            
+            // Analyst Notes
+            const notesContainer = document.getElementById('analystNotes');
+            notesContainer.innerHTML = '';
+            
+            if (data.analyst_notes) {
+                data.analyst_notes.forEach(note => {
+                    const li = document.createElement('li');
+                    li.textContent = note;
+                    notesContainer.appendChild(li);
+                });
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function downloadReport() {
+            if (currentReport) {
+                window.location.href = `/download-report/${currentReport}`;
+            }
+        }
+    </script>
+</body>
+</html>

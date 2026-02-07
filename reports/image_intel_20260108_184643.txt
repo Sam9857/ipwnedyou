@@ -1,0 +1,113 @@
+
+═══════════════════════════════════════════════════════
+      IMAGE INTELLIGENCE ANALYSIS REPORT
+═══════════════════════════════════════════════════════
+
+Analysis Timestamp: 2026-01-08 18:46:43
+Filename: img_20260108_184643_Screenshot 2026-01-02 115159.png
+File Size: 1493737 bytes
+Image Dimensions: 1525 x 683 pixels
+Status: Analysis Complete
+
+─────────────────────────────────────────────────────
+EXIF METADATA ANALYSIS
+─────────────────────────────────────────────────────
+EXIF Available: No
+
+⚠ NO EXIF METADATA FOUND - This is common and expected. Reasons: Social media stripping, screenshot, edited image, or camera settings. Missing EXIF is NOT suspicious.
+
+─────────────────────────────────────────────────────
+OCR TEXT EXTRACTION
+─────────────────────────────────────────────────────
+Method: Tesseract OCR (Offline)
+Text Found: Yes
+
+📝 EXTRACTED TEXT:
+--------------------------------------------------
+a 1 1 i}
+Beers do. Electrical Licence Authorised- MC-36e21
+ay Refrigerators 'S. Domestic & Industrial Stc.
+ieee prakashenterprisesngp@amail.com
+lead Offi
+
+'9P@amallcom Web: www
+<* * Gorewada Road, Bhupesh Nagar Nagpur 440013
+
+M: 9371080367 / 9403118300 __Branch Office : Kato! Road, Brahm
+
+igeration.getit.in
+shwar Distt. Nagpur
+
+E
+
+Google Maps
+--------------------------------------------------
+
+⚠ OCR ACCURACY NOT GUARANTEED - Text extraction is informational only. Results may contain errors, misreads, or artifacts. Verify all extracted text manually. Low-quality images produce unreliable results.
+
+─────────────────────────────────────────────────────
+GEOLOCATION ANALYSIS
+─────────────────────────────────────────────────────
+
+⚠ NO GPS DATA - Location cannot be determined from image metadata alone.
+
+─────────────────────────────────────────────────────
+REVERSE IMAGE SEARCH (MANUAL VERIFICATION)
+─────────────────────────────────────────────────────
+⚠ MANUAL VERIFICATION REQUIRED
+Upload the image to each search engine manually.
+Similar images DO NOT confirm original source.
+Edited/cropped versions may appear.
+Cross-reference results from multiple engines.
+
+🔍 SEARCH ENGINES:
+  • Google Lens: https://lens.google.com/
+  • Google Images: https://images.google.com/
+  • Yandex Images: https://yandex.com/images/
+  • Bing Visual Search: https://www.bing.com/visualsearch
+  • TinEye: https://tineye.com/
+
+File Hash (SHA-256): e996f9503e85df0346164ffd2a77587bf1402484111cbb244f95efbbf986b68d
+
+⚠ REVERSE SEARCH LIMITATIONS:
+• This tool does NOT upload images automatically
+• Analyst must manually upload to each search engine
+• Similar ≠ Original source
+• Platform identification requires additional OSINT
+• Results may include unrelated but visually similar images
+
+─────────────────────────────────────────────────────
+ANALYST ACTION ITEMS
+─────────────────────────────────────────────────────
+✓ Review EXIF data for inconsistencies
+✓ Manually verify OCR-extracted text
+✓ Upload image to reverse search engines manually
+✓ Cross-reference location data with other intelligence
+✓ Check for signs of editing or manipulation
+✓ Document findings in formal intelligence report
+
+═══════════════════════════════════════════════════════
+                 OSINT ANALYST GUIDANCE                
+═══════════════════════════════════════════════════════
+
+⚠ HUMAN VALIDATION REQUIRED ⚠
+
+This automated analysis provides INFORMATIONAL DATA ONLY.
+The human analyst is the FINAL AUTHORITY on all findings.
+
+CRITICAL REMINDERS:
+• EXIF can be stripped, edited, or fabricated
+• OCR accuracy is not guaranteed
+• GPS coordinates may be spoofed
+• Reverse search requires manual verification
+• Similar images ≠ confirmed source
+• Cross-reference ALL findings with independent sources
+
+DO NOT make conclusions based solely on this analysis.
+Always corroborate findings through multiple OSINT methods.
+═══════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════
+     Generated by I Pwned You OSINT Platform
+          Professional Image Intelligence Tool
+═══════════════════════════════════════════════════════

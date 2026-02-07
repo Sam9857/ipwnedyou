@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - I Pwned You</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>I PWNED YOU</h2>
+                <p>OSINT Platform v1.0</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard"><span>🏠</span> Dashboard</a></li>
+                <li><a href="/domain-scan"><span>🌐</span> Domain Scan</a></li>
+                <li><a href="/ip-scan"><span>📡</span> IP Scan</a></li>
+                <li><a href="/image-intel"><span>🖼️</span> Image Intelligence</a></li>
+                <li><a href="/reports" class="active"><span>📊</span> Reports</a></li>
+                <li><a href="/creator"><span>👤</span> Creator</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span>👤</span> {{ username }}
+                </div>
+                <button class="btn-logout" onclick="window.location.href='/logout'">
+                    🚪 LOGOUT
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📊 SCAN REPORTS</h1>
+                <p>View and download generated reports</p>
+            </div>
+
+            {% if reports and reports|length > 0 %}
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📄 GENERATED REPORTS ({{ reports|length }})</div>
+                </div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Report Name</th>
+                                <th>Type</th>
+                                <th>Generated</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in reports %}
+                            <tr>
+                                <td>{{ report }}</td>
+                                <td>
+                                    {% if 'domain' in report %}
+                                    <span class="badge badge-info">DOMAIN</span>
+                                    {% elif 'ip' in report %}
+                                    <span class="badge badge-success">IP</span>
+                                    {% elif 'image' in report %}
+                                    <span class="badge badge-warning">IMAGE</span>
+                                    {% else %}
+                                    <span class="badge">UNKNOWN</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ report.split('_')[-1].replace('.txt', '').replace('-', ':') if '_' in report else 'N/A' }}</td>
+                                <td>
+                                    <a href="/download-report/{{ report }}" class="btn btn-secondary" style="padding: 8px 15px; font-size: 12px;">
+                                        <span>📥</span> DOWNLOAD
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center" style="padding: 60px 20px;">
+                    <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;">📊</div>
+                    <h3 style="color: #a0a0a0; margin-bottom: 10px;">No Reports Generated Yet</h3>
+                    <p style="color: #666; margin-bottom: 30px;">
+                        Run scans to generate reports automatically
+                    </p>
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <a href="/domain-scan" class="btn btn-primary">
+                            <span>🌐</span> Domain Scan
+                        </a>
+                        <a href="/ip-scan" class="btn btn-primary">
+                            <span>📡</span> IP Scan
+                        </a>
+                        <a href="/image-intel" class="btn btn-primary">
+                            <span>🖼️</span> Image Intel
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Report Info -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">ℹ️ ABOUT REPORTS</div>
+                </div>
+                <div class="card-body">
+                    <p style="color: #a0a0a0; line-height: 1.8; margin-bottom: 15px;">
+                        All scan results are automatically saved as text-based reports in the <code style="color: #00ff88; background: #1a1f2e; padding: 2px 6px; border-radius: 3px;">reports/</code> folder. 
+                        Reports include complete scan data, limitations, and professional OSINT disclaimers.
+                    </p>
+                    <ul style="color: #666; line-height: 1.8; padding-left: 20px;">
+                        <li>Reports are stored locally on your system</li>
+                        <li>Download reports for record-keeping and analysis</li>
+                        <li>Reports follow SOC-appropriate formatting standards</li>
+                        <li>All reports include timestamps and scan metadata</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator - I Pwned You</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>I PWNED YOU</h2>
+                <p>OSINT Platform v1.0</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard"><span>🏠</span> Dashboard</a></li>
+                <li><a href="/domain-scan"><span>🌐</span> Domain Scan</a></li>
+                <li><a href="/ip-scan"><span>📡</span> IP Scan</a></li>
+                <li><a href="/image-intel"><span>🖼️</span> Image Intelligence</a></li>
+                <li><a href="/reports"><span>📊</span> Reports</a></li>
+                <li><a href="/creator" class="active"><span>👤</span> Creator</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span>👤</span> {{ username }}
+                </div>
+                <button class="btn-logout" onclick="window.location.href='/logout'">
+                    🚪 LOGOUT
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>👤 CREATOR PROFILE</h1>
+                <p>About the developer</p>
+            </div>
+
+            <div class="creator-card card">
+                <div class="card-body" style="padding: 50px 40px;">
+                    <!-- Profile Avatar -->
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="width: 150px; height: 150px; margin: 0 auto; background: linear-gradient(135deg, #ff3e3e 0%, #00ff88 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 64px; box-shadow: 0 0 30px rgba(255, 62, 62, 0.3);">
+                            <img src="{{ url_for('static', filename='images/Photo.png') }}"
+     alt="logo"
+     style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+
+                        </div>
+                    </div>
+
+                    <!-- Creator Name -->
+                    <div class="creator-name">Samyak M </div>
+                    <div class="creator-title">Red teaming</div>
+
+                    <!-- Bio -->
+                    <div class="creator-bio">
+                        <p style="margin-bottom: 15px;">
+                            This OSINT Threat Detection Platform was built as a real-world learning project 
+                            to demonstrate practical cyber security skills and full-stack development capabilities.
+                        </p>
+                        <p style="margin-bottom: 15px;">
+                            The platform follows professional OSINT standards and emphasizes human analyst validation, 
+                            making it suitable for SOC training and cyber security education.
+                        </p>
+                        <p>
+                            Built with Python Flask backend, modern HTML/CSS/JS frontend, and integrated with 
+                            real OSINT tools and APIs for domain intelligence, IP geolocation, and image analysis.
+                        </p>
+                    </div>
+
+                    <!-- Tech Stack -->
+                    <div style="margin: 30px 0; padding: 20px; background: var(--bg-tertiary); border-radius: 8px;">
+                        <h3 style="color: var(--accent-green); margin-bottom: 15px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">
+                            🛠️ Technology Stack
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                            <div style="text-align: center; padding: 15px; background: var(--bg-secondary); border-radius: 5px;">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🐍</div>
+                                <div style="color: var(--accent-red); font-weight: 600;">Python Flask</div>
+                                <div style="color: var(--text-muted); font-size: 12px;">Backend</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: var(--bg-secondary); border-radius: 5px;">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🎨</div>
+                                <div style="color: var(--accent-red); font-weight: 600;">HTML/CSS/JS</div>
+                                <div style="color: var(--text-muted); font-size: 12px;">Frontend</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: var(--bg-secondary); border-radius: 5px;">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🔍</div>
+                                <div style="color: var(--accent-red); font-weight: 600;">OSINT APIs</div>
+                                <div style="color: var(--text-muted); font-size: 12px;">Intelligence</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: var(--bg-secondary); border-radius: 5px;">
+                                <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                                <div style="color: var(--accent-red); font-weight: 600;">Tesseract OCR</div>
+                                <div style="color: var(--text-muted); font-size: 12px;">Image Analysis</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Links -->
+                    <div class="social-links">
+                        <a href="https://github.com/Sam9857" target="_blank" class="social-link">
+                            <span style="font-size: 20px;">🐙</span>
+                            <span>GitHub</span>
+                        </a>
+                        <a href="https://www.linkedin.com/in/samyak-m-1221872a1/" target="_blank" class="social-link">
+                            <span style="font-size: 20px;">💼</span>
+                            <span>LinkedIn</span>
+                        </a>
+                        <a href="mailto:samyakworkk@gmail.com" class="social-link">
+                            <span style="font-size: 20px;">📧</span>
+                            <span>Email</span>
+                        </a>
+                    </div>
+
+                    <!-- Project Info -->
+                    <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid var(--border-color);">
+                        <h3 style="color: var(--accent-green); margin-bottom: 20px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">
+                            📋 Project Information
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            <div style="text-align: center;">
+                                <div style="color: var(--accent-red); font-size: 24px; font-weight: 700; margin-bottom: 5px;">v1.0</div>
+                                <div style="color: var(--text-secondary); font-size: 13px;">Version 0.1</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: var(--accent-red); font-size: 24px; font-weight: 700; margin-bottom: 5px;">Windows</div>
+                                <div style="color: var(--text-secondary); font-size: 13px;">OS</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="color: var(--accent-red); font-size: 24px; font-weight: 700; margin-bottom: 5px;">2026</div>
+                                <div style="color: var(--text-secondary); font-size: 13px;">Release Year</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Features Overview -->
+                    <div style="margin-top: 30px; padding: 20px; background: var(--bg-tertiary); border-radius: 8px;">
+                        <h3 style="color: var(--accent-green); margin-bottom: 15px; text-align: center; text-transform: uppercase; letter-spacing: 1px;">
+                            ✨ Core Features
+                        </h3>
+                        <ul style="color: var(--text-secondary); line-height: 2; padding-left: 20px; list-style: none;">
+                            <li>🌐 Domain OSINT - DNS, WHOIS, IP resolution</li>
+                            <li>📡 IP Intelligence - Geolocation, ISP, ASN lookup</li>
+                            <li>🖼️ Image Analysis - EXIF, OCR, GPS extraction</li>
+                            <li>📊 Automated Report Generation</li>
+                            <li>🔐 Secure Authentication System</li>
+                            <li>⚠️ Professional OSINT Disclaimers</li>
+                            <li>🎨 Dark Cyber-Security Theme</li>
+                            <li>📱 Responsive Design</li>
+                        </ul>
+                    </div>
+
+                    <!-- Footer Note -->
+                    <div style="margin-top: 40px; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.8;">
+                        <p>
+                            💡 This project demonstrates practical application of cyber security principles,<br>
+                            OSINT methodologies, and modern web development practices.
+                        </p>
+                        <p style="margin-top: 10px;">
+                            Built for educational purposes and SOC training environments.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

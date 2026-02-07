@@ -1,0 +1,156 @@
+"""
+Domain OSINT Module
+Performs basic domain reconnaissance using free/built-in tools
+"""
+
+import socket
+import dns.resolver
+import whois
+from datetime import datetime
+
+
+def scan_domain(domain):
+    """
+    Perform OSINT scan on a domain
+    Returns basic information using free tools
+    
+    Args:
+        domain (str): Target domain (e.g., example.com)
+    
+    Returns:
+        dict: Domain intelligence data
+    """
+    
+    result = {
+        'domain': domain,
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'ip_address': None,
+        'dns_records': {},
+        'whois_info': {},
+        'status': 'Unknown',
+        'errors': [],
+        'limitations': []
+    }
+    
+    try:
+        # 1. IP Resolution
+        try:
+            ip = socket.gethostbyname(domain)
+            result['ip_address'] = ip
+            result['status'] = 'Active'
+        except socket.gaierror:
+            result['errors'].append('Domain resolution failed')
+            result['status'] = 'Resolution Failed'
+            return result
+        
+        # 2. DNS Records (Basic)
+        dns_types = ['A', 'AAAA', 'MX', 'NS', 'TXT', 'CNAME']
+        for record_type in dns_types:
+            try:
+                answers = dns.resolver.resolve(domain, record_type)
+                result['dns_records'][record_type] = [str(rdata) for rdata in answers]
+            except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.resolver.NoNameservers):
+                result['dns_records'][record_type] = []
+            except Exception as e:
+                result['dns_records'][record_type] = [f'Error: {str(e)}']
+        
+        # 3. WHOIS Information (Basic)
+        try:
+            w = whois.whois(domain)
+            
+            result['whois_info'] = {
+                'registrar': w.registrar if hasattr(w, 'registrar') else 'N/A',
+                'creation_date': str(w.creation_date) if hasattr(w, 'creation_date') else 'N/A',
+                'expiration_date': str(w.expiration_date) if hasattr(w, 'expiration_date') else 'N/A',
+                'name_servers': w.name_servers if hasattr(w, 'name_servers') else [],
+                'country': w.country if hasattr(w, 'country') else 'N/A',
+                'registrant': w.name if hasattr(w, 'name') else 'N/A'
+            }
+        except Exception as e:
+            result['whois_info'] = {'error': f'WHOIS lookup limited or failed: {str(e)}'}
+            result['limitations'].append('WHOIS data may be limited due to privacy protection')
+        
+        # Add general limitations
+        result['limitations'].append('Basic DNS resolution only - advanced records require paid APIs')
+        result['limitations'].append('WHOIS data may be protected by privacy services')
+        
+    except Exception as e:
+        result['errors'].append(f'Scan error: {str(e)}')
+        result['status'] = 'Error'
+    
+    return result
+
+
+def format_domain_report(scan_result):
+    """
+    Format domain scan results into a readable report
+    
+    Args:
+        scan_result (dict): Result from scan_domain()
+    
+    Returns:
+        str: Formatted text report
+    """
+    
+    report = f"""
+═══════════════════════════════════════════════════════
+         DOMAIN OSINT SCAN REPORT
+═══════════════════════════════════════════════════════
+
+Target Domain: {scan_result['domain']}
+Scan Time: {scan_result['timestamp']}
+Status: {scan_result['status']}
+
+─────────────────────────────────────────────────────
+IP RESOLUTION
+─────────────────────────────────────────────────────
+Primary IP: {scan_result['ip_address'] or 'Not resolved'}
+
+─────────────────────────────────────────────────────
+DNS RECORDS
+─────────────────────────────────────────────────────
+"""
+    
+    for record_type, records in scan_result['dns_records'].items():
+        if records:
+            report += f"\n{record_type} Records:\n"
+            for record in records:
+                report += f"  • {record}\n"
+    
+    report += f"""
+─────────────────────────────────────────────────────
+WHOIS INFORMATION
+─────────────────────────────────────────────────────
+"""
+    
+    if 'error' not in scan_result['whois_info']:
+        for key, value in scan_result['whois_info'].items():
+            report += f"{key.replace('_', ' ').title()}: {value}\n"
+    else:
+        report += f"{scan_result['whois_info']['error']}\n"
+    
+    if scan_result['limitations']:
+        report += f"""
+─────────────────────────────────────────────────────
+LIMITATIONS
+─────────────────────────────────────────────────────
+"""
+        for limitation in scan_result['limitations']:
+            report += f"⚠ {limitation}\n"
+    
+    if scan_result['errors']:
+        report += f"""
+─────────────────────────────────────────────────────
+ERRORS
+─────────────────────────────────────────────────────
+"""
+        for error in scan_result['errors']:
+            report += f"❌ {error}\n"
+    
+    report += """
+═══════════════════════════════════════════════════════
+        Generated by I Pwned You OSINT Platform
+═══════════════════════════════════════════════════════
+"""
+    
+    return report

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Scan - I Pwned You</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>I PWNED YOU</h2>
+                <p>OSINT Platform v1.0</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard"><span>🏠</span> Dashboard</a></li>
+                <li><a href="/domain-scan"><span>🌐</span> Domain Scan</a></li>
+                <li><a href="/ip-scan" class="active"><span>📡</span> IP Scan</a></li>
+                <li><a href="/image-intel"><span>🖼️</span> Image Intelligence</a></li>
+                <li><a href="/reports"><span>📊</span> Reports</a></li>
+                <li><a href="/creator"><span>👤</span> Creator</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span>👤</span> {{ username }}
+                </div>
+                <button class="btn-logout" onclick="window.location.href='/logout'">
+                    🚪 LOGOUT
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📡 IP INTELLIGENCE SCAN</h1>
+                <p>Geolocate and analyze IP addresses</p>
+            </div>
+
+            <!-- Scan Form -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🔍 ENTER TARGET IP</div>
+                </div>
+                <div class="card-body">
+                    <form id="ipForm" class="scan-form">
+                        <div class="input-group">
+                            <label for="ip">IP ADDRESS</label>
+                            <input type="text" id="ip" placeholder="8.8.8.8" required>
+                            <p style="color: #666; font-size: 12px; margin-top: 8px;">
+                                Enter IPv4 address (e.g., 8.8.8.8, 1.1.1.1)
+                            </p>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="scanBtn">
+                            <span>🔍</span> START SCAN
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            <div class="alert alert-success" id="successAlert"></div>
+            <div class="alert alert-error" id="errorAlert"></div>
+
+            <!-- Loading Indicator -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">Scanning IP address... Please wait</div>
+            </div>
+
+            <!-- Results Container -->
+            <div class="results-container" id="resultsContainer">
+                <!-- Basic Info -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📍 BASIC INFORMATION</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="result-section">
+                            <div class="result-item">
+                                <div class="result-label">IP Address:</div>
+                                <div class="result-value" id="resIP">-</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Status:</div>
+                                <div class="result-value" id="resStatus">-</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Reverse DNS:</div>
+                                <div class="result-value" id="resReverseDNS">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Geolocation -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🌍 GEOLOCATION</div>
+                    </div>
+                    <div class="card-body" id="geoInfo">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Network Info -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🌐 NETWORK INFORMATION</div>
+                    </div>
+                    <div class="card-body" id="networkInfo">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Limitations -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">⚠️ LIMITATIONS</div>
+                    </div>
+                    <div class="card-body">
+                        <ul id="limitations" style="color: #ffbf00; line-height: 1.8; padding-left: 20px;">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Download Report -->
+                <div class="card">
+                    <div class="card-body text-center">
+                        <button class="btn btn-success" id="downloadBtn" onclick="downloadReport()">
+                            <span>📥</span> DOWNLOAD REPORT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentReport = null;
+
+        document.getElementById('ipForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const ip = document.getElementById('ip').value.trim();
+            const scanBtn = document.getElementById('scanBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('resultsContainer');
+            const successAlert = document.getElementById('successAlert');
+            const errorAlert = document.getElementById('errorAlert');
+            
+            // Reset
+            results.classList.remove('show');
+            successAlert.classList.remove('show');
+            errorAlert.classList.remove('show');
+            
+            // Show loading
+            scanBtn.disabled = true;
+            scanBtn.innerHTML = '<span>⏳</span> SCANNING...';
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/scan/ip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayIPResults(data);
+                    currentReport = data.report_file;
+                    
+                    successAlert.textContent = '✓ Scan completed successfully';
+                    successAlert.classList.add('show');
+                    results.classList.add('show');
+                } else {
+                    errorAlert.textContent = '✗ ' + (data.message || 'Scan failed');
+                    errorAlert.classList.add('show');
+                }
+            } catch (error) {
+                errorAlert.textContent = '✗ Network error: ' + error.message;
+                errorAlert.classList.add('show');
+            } finally {
+                loading.classList.remove('show');
+                scanBtn.disabled = false;
+                scanBtn.innerHTML = '<span>🔍</span> START SCAN';
+            }
+        });
+
+        function displayIPResults(data) {
+            // Basic info
+            document.getElementById('resIP').textContent = data.ip || 'N/A';
+            document.getElementById('resStatus').innerHTML = `<span class="badge badge-${data.status === 'Active' ? 'success' : 'error'}">${data.status}</span>`;
+            document.getElementById('resReverseDNS').textContent = data.reverse_dns || 'N/A';
+            
+            // Geolocation
+            const geoContainer = document.getElementById('geoInfo');
+            geoContainer.innerHTML = '';
+            
+            if (data.geolocation && Object.keys(data.geolocation).length > 0) {
+                const section = document.createElement('div');
+                section.className = 'result-section';
+                
+                for (const [key, value] of Object.entries(data.geolocation)) {
+                    const item = document.createElement('div');
+                    item.className = 'result-item';
+                    item.innerHTML = `
+                        <div class="result-label">${key.replace(/_/g, ' ').toUpperCase()}:</div>
+                        <div class="result-value">${value}</div>
+                    `;
+                    section.appendChild(item);
+                }
+                
+                geoContainer.appendChild(section);
+            } else {
+                geoContainer.innerHTML = '<p style="color: #ffbf00;">No geolocation data available</p>';
+            }
+            
+            // Network Info
+            const networkContainer = document.getElementById('networkInfo');
+            networkContainer.innerHTML = '';
+            
+            if (data.geolocation) {
+                const section = document.createElement('div');
+                section.className = 'result-section';
+                
+                const networkFields = ['isp', 'organization', 'asn'];
+                networkFields.forEach(field => {
+                    if (data.geolocation[field]) {
+                        const item = document.createElement('div');
+                        item.className = 'result-item';
+                        item.innerHTML = `
+                            <div class="result-label">${field.toUpperCase()}:</div>
+                            <div class="result-value">${data.geolocation[field]}</div>
+                        `;
+                        section.appendChild(item);
+                    }
+                });
+                
+                networkContainer.appendChild(section);
+            }
+            
+            // Limitations
+            const limitContainer = document.getElementById('limitations');
+            limitContainer.innerHTML = '';
+            
+            if (data.limitations) {
+                data.limitations.forEach(lim => {
+                    const li = document.createElement('li');
+                    li.textContent = lim;
+                    limitContainer.appendChild(li);
+                });
+            }
+        }
+
+        function downloadReport() {
+            if (currentReport) {
+                window.location.href = `/download-report/${currentReport}`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Scan - I Pwned You</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>I PWNED YOU</h2>
+                <p>OSINT Platform v1.0</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard"><span>🏠</span> Dashboard</a></li>
+                <li><a href="/domain-scan" class="active"><span>🌐</span> Domain Scan</a></li>
+                <li><a href="/ip-scan"><span>📡</span> IP Scan</a></li>
+                <li><a href="/image-intel"><span>🖼️</span> Image Intelligence</a></li>
+                <li><a href="/reports"><span>📊</span> Reports</a></li>
+                <li><a href="/creator"><span>👤</span> Creator</a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span>👤</span> {{ username }}
+                </div>
+                <button class="btn-logout" onclick="window.location.href='/logout'">
+                    🚪 LOGOUT
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>🌐 DOMAIN OSINT SCAN</h1>
+                <p>Perform reconnaissance on domain names</p>
+            </div>
+
+            <!-- Scan Form -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">🔍 ENTER TARGET DOMAIN</div>
+                </div>
+                <div class="card-body">
+                    <form id="domainForm" class="scan-form">
+                        <div class="input-group">
+                            <label for="domain">DOMAIN NAME</label>
+                            <input type="text" id="domain" placeholder="example.com" required>
+                            <p style="color: #666; font-size: 12px; margin-top: 8px;">
+                                Enter domain without protocol (e.g., google.com, github.com)
+                            </p>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="scanBtn">
+                            <span>🔍</span> START SCAN
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            <div class="alert alert-success" id="successAlert"></div>
+            <div class="alert alert-error" id="errorAlert"></div>
+
+            <!-- Loading Indicator -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">Scanning domain... Please wait</div>
+            </div>
+
+            <!-- Results Container -->
+            <div class="results-container" id="resultsContainer">
+                <!-- IP Resolution -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📍 IP RESOLUTION</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="result-section">
+                            <div class="result-item">
+                                <div class="result-label">Domain:</div>
+                                <div class="result-value" id="resDomain">-</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">IP Address:</div>
+                                <div class="result-value" id="resIP">-</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Status:</div>
+                                <div class="result-value" id="resStatus">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DNS Records -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📋 DNS RECORDS</div>
+                    </div>
+                    <div class="card-body" id="dnsRecords">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- WHOIS Information -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🔐 WHOIS INFORMATION</div>
+                    </div>
+                    <div class="card-body" id="whoisInfo">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Limitations -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">⚠️ LIMITATIONS</div>
+                    </div>
+                    <div class="card-body">
+                        <ul id="limitations" style="color: #ffbf00; line-height: 1.8; padding-left: 20px;">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Download Report -->
+                <div class="card">
+                    <div class="card-body text-center">
+                        <button class="btn btn-success" id="downloadBtn" onclick="downloadReport()">
+                            <span>📥</span> DOWNLOAD REPORT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        let currentReport = null;
+
+        document.getElementById('domainForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const domain = document.getElementById('domain').value.trim();
+            const scanBtn = document.getElementById('scanBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('resultsContainer');
+            const successAlert = document.getElementById('successAlert');
+            const errorAlert = document.getElementById('errorAlert');
+            
+            // Reset
+            results.classList.remove('show');
+            successAlert.classList.remove('show');
+            errorAlert.classList.remove('show');
+            
+            // Show loading
+            scanBtn.disabled = true;
+            scanBtn.innerHTML = '<span>⏳</span> SCANNING...';
+            loading.classList.add('show');
+            
+            try {
+                const response = await fetch('/api/scan/domain', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domain })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Display results
+                    displayDomainResults(data);
+                    currentReport = data.report_file;
+                    
+                    successAlert.textContent = '✓ Scan completed successfully';
+                    successAlert.classList.add('show');
+                    results.classList.add('show');
+                } else {
+                    errorAlert.textContent = '✗ ' + (data.message || 'Scan failed');
+                    errorAlert.classList.add('show');
+                }
+            } catch (error) {
+                errorAlert.textContent = '✗ Network error: ' + error.message;
+                errorAlert.classList.add('show');
+            } finally {
+                loading.classList.remove('show');
+                scanBtn.disabled = false;
+                scanBtn.innerHTML = '<span>🔍</span> START SCAN';
+            }
+        });
+
+        function displayDomainResults(data) {
+            // Basic info
+            document.getElementById('resDomain').textContent = data.domain || 'N/A';
+            document.getElementById('resIP').textContent = data.ip_address || 'Not resolved';
+            document.getElementById('resStatus').innerHTML = `<span class="badge badge-${data.status === 'Active' ? 'success' : 'error'}">${data.status}</span>`;
+            
+            // DNS Records
+            const dnsContainer = document.getElementById('dnsRecords');
+            dnsContainer.innerHTML = '';
+            
+            if (data.dns_records) {
+                for (const [type, records] of Object.entries(data.dns_records)) {
+                    if (records && records.length > 0) {
+                        const section = document.createElement('div');
+                        section.className = 'result-section';
+                        section.innerHTML = `<h3>${type} RECORDS</h3>`;
+                        
+                        records.forEach(record => {
+                            const item = document.createElement('div');
+                            item.className = 'result-item';
+                            item.innerHTML = `<div class="result-value">${record}</div>`;
+                            section.appendChild(item);
+                        });
+                        
+                        dnsContainer.appendChild(section);
+                    }
+                }
+            }
+            
+            // WHOIS Info
+            const whoisContainer = document.getElementById('whoisInfo');
+            whoisContainer.innerHTML = '';
+            
+            if (data.whois_info) {
+                const section = document.createElement('div');
+                section.className = 'result-section';
+                
+                if (data.whois_info.error) {
+                    section.innerHTML = `<p style="color: #ffbf00;">${data.whois_info.error}</p>`;
+                } else {
+                    for (const [key, value] of Object.entries(data.whois_info)) {
+                        const item = document.createElement('div');
+                        item.className = 'result-item';
+                        item.innerHTML = `
+                            <div class="result-label">${key.replace(/_/g, ' ').toUpperCase()}:</div>
+                            <div class="result-value">${Array.isArray(value) ? value.join(', ') : value}</div>
+                        `;
+                        section.appendChild(item);
+                    }
+                }
+                
+                whoisContainer.appendChild(section);
+            }
+            
+            // Limitations
+            const limitContainer = document.getElementById('limitations');
+            limitContainer.innerHTML = '';
+            
+            if (data.limitations) {
+                data.limitations.forEach(lim => {
+                    const li = document.createElement('li');
+                    li.textContent = lim;
+                    limitContainer.appendChild(li);
+                });
+            }
+        }
+
+        function downloadReport() {
+            if (currentReport) {
+                window.location.href = `/download-report/${currentReport}`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Flask Web Framework
+Flask==2.3.0
+Werkzeug==2.3.0
+
+# HTTP Requests
+requests==2.31.0
+
+# Domain OSINT Tools
+python-whois==0.8.0
+dnspython==2.3.0
+
+# Image Processing
+Pillow==10.0.0
+pytesseract==0.3.10
+exifread==3.0.0
+
+# Geolocation
+geopy==2.3.0
+gunicorn
+
+# Note: Tesseract OCR must be installed separately on Windows
+# Download from: https://github.com/UB-Mannheim/tesseract/wiki
