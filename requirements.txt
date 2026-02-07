@@ -2,6 +2,7 @@
 Flask==2.3.0
 Werkzeug==2.3.0
 
+
 # HTTP Requests
 requests==2.31.0
 
@@ -10,7 +11,7 @@ python-whois==0.8.0
 dnspython==2.3.0
 
 # Image Processing
-Pillow==10.0.0
+Pillow==10.3.0
 pytesseract==0.3.10
 exifread==3.0.0
 
